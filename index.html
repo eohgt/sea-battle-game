@@ -1,44 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Морской бой</title>
   <style>
-    body { font-family: sans-serif; text-align: center; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(10, 30px);
-      grid-template-rows: repeat(10, 30px);
-      gap: 2px;
-      margin: 20px auto;
-      width: fit-content;
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 30px;
     }
-    .cell {
-      width: 30px;
-      height: 30px;
-      background: lightblue;
-      border: 1px solid #333;
+    #room, #status {
+      margin: 20px 0;
+      font-size: 1.2em;
     }
-    .cell.ship { background: gray; }
-    .cell.hit { background: red; }
-    .cell.miss { background: white; }
+    #startBtn {
+      display: none;
+      padding: 10px 20px;
+      font-size: 1em;
+    }
   </style>
 </head>
 <body>
-  <h1>Морской бой</h1>
-  <div class="grid" id="grid"></div>
-  <button onclick="alert('Начать игру!')">Начать игру</button>
+  <h1>⚓ Морской бой</h1>
+  <div id="room">Комната: ...</div>
+  <div id="status">Ожидание второго игрока...</div>
+  <button id="startBtn">Начать игру</button>
 
   <script>
-    const grid = document.getElementById('grid');
-    for (let i = 0; i < 100; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.addEventListener('click', () => {
-        cell.classList.toggle('hit'); // просто для примера
-      });
-      grid.appendChild(cell);
+    // Получаем room_id из URL
+    const urlParams = new URLSearchParams(window.location.search);
+    let roomId = urlParams.get('room');
+
+    // Если нет room_id — создаём случайный
+    if (!roomId) {
+      roomId = Math.random().toString(36).substring(2, 6).toUpperCase(); // типа X8KF
+      // Обновим URL
+      window.history.replaceState({}, '', `?room=${roomId}`);
     }
+
+    document.getElementById("room").textContent = `Код комнаты: ${roomId}`;
+
+    // Симуляция подключения второго игрока
+    // (тут в будущем будет WebSocket или Firebase)
+    let isSecondPlayerConnected = false;
+
+    // Симуляция: через 3 секунды подключается второй игрок
+    setTimeout(() => {
+      isSecondPlayerConnected = true;
+      document.getElementById("status").textContent = "Оба игрока подключены!";
+      document.getElementById("startBtn").style.display = "inline-block";
+    }, 3000);
+
+    // Кнопка "Начать игру"
+    document.getElementById("startBtn").onclick = () => {
+      alert("Игра начинается! (тут будет реальная логика)");
+    };
   </script>
 </body>
 </html>

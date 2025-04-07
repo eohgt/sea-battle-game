@@ -27,59 +27,52 @@
   <div id="status">Ожидание второго игрока...</div>
   <button id="startBtn">Начать игру</button>
 
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-  <script>
-    // Инициализация Firebase
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyAUK1_V-KYrcDrvbNKYODG0jRuSzEp4ml4",
       authDomain: "sea-battle-game-98827.firebaseapp.com",
       databaseURL: "https://sea-battle-game-98827-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "sea-battle-game-98827",
-      storageBucket: "sea-battle-game-98827.firebasestorage.app",
+      storageBucket: "sea-battle-game-98827.appspot.com",
       messagingSenderId: "679633608947",
       appId: "1:679633608947:web:a6cd4cfdddb91ed9589786",
       measurementId: "G-CBBQGPTW3M"
     };
 
-    const app = firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
 
-    // Получаем room_id из URL
     const urlParams = new URLSearchParams(window.location.search);
     let roomId = urlParams.get('room');
 
-    // Если нет room_id — создаём случайный
     if (!roomId) {
-      roomId = Math.random().toString(36).substring(2, 6).toUpperCase(); // типа X8KF
-      // Обновим URL
+      roomId = Math.random().toString(36).substring(2, 6).toUpperCase();
       window.history.replaceState({}, '', `?room=${roomId}`);
     }
 
     document.getElementById("room").textContent = `Код комнаты: ${roomId}`;
 
-    // Работа с Firebase: создаём комнату в базе данных
-    const roomRef = database.ref('rooms/' + roomId);
+    const roomRef = ref(database, 'rooms/' + roomId);
 
-    // Добавляем первого игрока в комнату
-    roomRef.set({
+    set(roomRef, {
       player1: "Player 1",
       player2: null,
       status: 'waiting'
     });
 
-    // Функция для добавления второго игрока
     function addSecondPlayer() {
-      roomRef.update({
+      update(roomRef, {
         player2: "Player 2",
         status: 'active'
       });
     }
 
-    // Подписываемся на изменения статуса комнаты
-    roomRef.on('value', function(snapshot) {
+    onValue(roomRef, (snapshot) => {
       const data = snapshot.val();
-      if (data.player2) {
+      if (data?.player2) {
         document.getElementById("status").textContent = "Оба игрока подключены!";
         document.getElementById("startBtn").style.display = "inline-block";
       } else {
@@ -87,7 +80,6 @@
       }
     });
 
-    // Кнопка "Начать игру"
     document.getElementById("startBtn").onclick = () => {
       alert("Игра начинается!");
     };

@@ -51,20 +51,24 @@
 
     // Если нет room_id — создаём случайный
     if (!roomId) {
-      roomId = Math.random().toString(36).substring(2, 6).toUpperCase();
+      roomId = Math.random().toString(36).substring(2, 6).toUpperCase(); // типа X8KF
+      // Обновим URL
       window.history.replaceState({}, '', `?room=${roomId}`);
     }
 
     document.getElementById("room").textContent = `Код комнаты: ${roomId}`;
 
+    // Работа с Firebase: создаём комнату в базе данных
     const roomRef = database.ref('rooms/' + roomId);
 
+    // Добавляем первого игрока в комнату
     roomRef.set({
       player1: "Player 1",
       player2: null,
       status: 'waiting'
     });
 
+    // Функция для добавления второго игрока
     function addSecondPlayer() {
       roomRef.update({
         player2: "Player 2",
@@ -72,6 +76,7 @@
       });
     }
 
+    // Подписываемся на изменения статуса комнаты
     roomRef.on('value', function(snapshot) {
       const data = snapshot.val();
       if (data.player2) {
